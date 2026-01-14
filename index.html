@@ -1,81 +1,136 @@
+<!DOCTYPE html>
 <html>
 
 	<head>
 		<meta charset="utf-8" />
 		<title>My Job Application Journey</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1" />
 		<style>
-			/* ensure the plot fills the page */
 			html,
 			body,
-			#a09f9355-1b03-46bf-8a90-9de73992740a {
+			#graph-container {
 				height: 100%;
 				margin: 0;
+				padding: 0;
 			}
 		</style>
 	</head>
 
 	<body>
-		<div>
-			<div id="a09f9355-1b03-46bf-8a90-9de73992740a" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+		<div id="last-updated" style="padding: 10px; font-size: 0.8em; color: gray;"></div>
+		<div id="graph-container"></div>
 
-			<script type="text/javascript">window.PlotlyConfig = { MathJaxConfig: 'local' };</script>
-
-			<!-- CDN-first loader with local fallback -->
-			<script>
-				(function loadPlotly() {
-					var cdn = 'https://cdn.plot.ly/plotly-2.35.2.min.js';
-					var local = 'plotly.local.min.js';
-					function load(src, onload, onerror) {
-						var s = document.createElement('script');
-						s.src = src; s.async = true;
-						s.onload = onload; s.onerror = onerror;
-						document.head.appendChild(s);
-					}
-					load(cdn, function () { console.log('Plotly loaded from CDN'); }, function () {
-						console.warn('CDN failed, loading local Plotly');
-						load(local, function () { console.log('Plotly loaded from local file'); }, function () { console.error('Failed to load Plotly from CDN and local fallback'); });
-					});
-				})();
-
-				// Helper to execute callbacks after Plotly is available
-				function whenPlotlyReady(cb, timeoutMs) {
-					timeoutMs = timeoutMs || 5000;
-					if (window.Plotly) { cb(); return; }
-					var waited = 0, intv = 50;
-					var id = setInterval(function () {
-						if (window.Plotly) { clearInterval(id); cb(); return; }
-						waited += intv;
-						if (waited >= timeoutMs) { clearInterval(id); console.error('Plotly did not load within timeout'); }
-					}, intv);
+		<script>
+			(function loadPlotly() {
+				var cdn = 'https://cdn.plot.ly/plotly-2.35.2.min.js';
+				var local = 'plotly.local.min.js';
+				function load(src, cb, err) {
+					var s = document.createElement('script');
+					s.src = src; s.onload = cb; s.onerror = err;
+					document.head.appendChild(s);
 				}
-			</script>
+				load(cdn, () => initGraph(), () => load(local, () => initGraph()));
+			})();
 
-			<!-- Plot initialization: run after Plotly is available -->
-			<script type="text/javascript">
-				whenPlotlyReady(function () {
-					window.PLOTLYENV = window.PLOTLYENV || {};
-					var el = document.getElementById("a09f9355-1b03-46bf-8a90-9de73992740a");
-					if (!el) return;
+			// 1. GLOBAL CONFIGURATION OBJECTS
+			// Edit these to change the look without touching the logic below
+			const chartStyle = {
+				node: {
+					pad: 20,
+					thickness: 15,
+					line: { color: "#2c3e50", width: 0.5 },
+					color: "#3498db" // Professional blue
+				},
+				link: {
+					color: "rgba(52, 152, 219, 0.3)" // Transparent blue for flows
+				}
+			};
 
-					Plotly.newPlot(el,
-						[ /* trace object(s) — kept unchanged from your original */
-							{
-								"link": { "source": [0, 2, 2, 5, 5, 7, 7, 9, 9, 9, 11, 11, 11, 13, 14, 14, 14, 15, 15, 15, 15, 17, 18, 18, 18, 18, 18, 19, 19, 20, 20, 20, 20, 21, 21, 22, 22, 22, 23, 24, 24, 24, 24, 24, 24, 25, 26, 26, 26, 26, 27, 28, 28, 29, 6, 10, 1, 4, 12, 8, 3, 16, 30, 30, 30, 31, 31, 31], "target": [1, 3, 4, 1, 6, 6, 8, 6, 4, 10, 12, 3, 10, 1, 1, 8, 10, 16, 6, 12, 10, 8, 16, 6, 12, 8, 4, 4, 10, 1, 6, 4, 10, 1, 6, 6, 4, 10, 4, 6, 12, 8, 3, 4, 10, 6, 1, 6, 12, 10, 6, 1, 6, 10, 30, 30, 30, 30, 30, 30, 30, 30, 31, 32, 33, 34, 35, 36], "value": [1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 2, 2, 2, 1, 4, 2, 4, 4, 2, 3, 1, 3, 2, 1, 23, 18, 16, 11, 8, 7, 4, 2, 70, 16, 3, 43, 19, 8] },
-								"node": { "color": "blue", "label": ["Canada", "Giant Famous", "China", "Mid No-Name", "Small Famous", "Denmark", "Large Famous", "France", "Mid Famous", "Germany", "Small No-Name", "Iceland", "Large No-Name", "Ireland", "Italy", "Japan", "Giant No-Name", "Netherlands", "Norway", "Online", "Poland", "Singapore", "Spain", "Sweden", "Switzerland", "Thailand", "UK", "USA", "Various", "Vietnam", "Total Opportunities", "Applied", "Skipped", "To Apply", "Response Pending", "Ghosted", "Negative Response"], "line": { "color": "black", "width": 0.5 }, "pad": 15, "thickness": 20 }, "type": "sankey"
-							}
-						],
-						{ /* layout/template — kept unchanged from your original */
-							"template": { /* ... huge template structure ... */ },
-							"title": { "text": "Job Application Progress" },
-							"font": { "size": 12 }
+			const chartLayout = {
+				title: {
+					text: "Job Application Journey 2026",
+					font: { size: 24, family: "Arial, sans-serif" },
+					x: 0.05
+				},
+				font: { size: 12, family: "Segoe UI, Tahoma, sans-serif" },
+				margin: { l: 50, r: 50, t: 80, b: 50 },
+				paper_bgcolor: "#ffffff",
+				plot_bgcolor: "#f8f9fa"
+			};
+
+			async function initGraph() {
+				try {
+					const version = new Date().getTime();
+					const response = await fetch(`sankey_data.json?v=${version}`);
+					if (!response.ok) throw new Error('Network response was not ok');
+
+					const data = await response.json();
+					if (data.last_updated) {
+						document.getElementById('last-updated').innerText = `Data last updated: ${data.last_updated}`;
+					}
+
+					// 2. MERGE DATA WITH CONFIG
+					const trace = {
+						type: "sankey",
+						orientation: "h",
+						node: {
+							...chartStyle.node, // Spread operator copies the config
+							label: data.labels
 						},
-						{ "responsive": true }
-					);
-				});
-			</script>
+						link: {
+							...chartStyle.link, // Spread operator copies the config
+							source: data.sources,
+							target: data.targets,
+							value: data.values,
+							color: data.link_colors,
+							customdata: data.link_colors
+						}
+					};
 
-		</div>
+					const config = {
+						responsive: true,
+						displayModeBar: false // Keeps the UI clean
+					};
+
+					Plotly.newPlot('graph-container', [trace], chartLayout, config);
+
+					// 3. INTERACTIVITY: HOVER TO HIGHLIGHT PATHS
+					gd.on('plotly_hover', function (eventData) {
+						const hovered = eventData.points[0];
+						const newColors = [...data.link_colors];
+
+						if (hovered.source) {
+							// Logic if hovering a link: highlight just that path
+							// Logic if hovering a node: highlight all paths connected to it
+							highlightPath(hovered, newColors, data);
+						}
+
+						Plotly.restyle(gd, { 'link.color': [newColors] }, [0]);
+					});
+
+					gd.on('plotly_unhover', function () {
+						// Reset to original colors
+						Plotly.restyle(gd, { 'link.color': [data.link_colors] }, [0]);
+					});
+
+				} catch (err) {
+					console.error('Error loading data:', err);
+				}
+			}
+
+			function highlightPath(point, colors, rawData) {
+				// This helper function recursively finds connected links
+				// and changes their opacity to 1.0 while dimming others to 0.1
+				const activeLinks = findConnectedLinks(point, rawData);
+
+				for (let i = 0; i < colors.length; i++) {
+					if (activeLinks.includes(i)) {
+						colors[i] = colors[i].replace(/0\.\d+\)/, "0.8)"); // Brighten
+					} else {
+						colors[i] = colors[i].replace(/0\.\d+\)/, "0.05)"); // Dim
+					}
+				}
+			}
+		</script>
 	</body>
 
 </html>
