@@ -74,7 +74,8 @@
 						orientation: "h",
 						node: {
 							...chartStyle.node, // Spread operator copies the config
-							label: data.labels
+							label: data.labels,
+							x: data.node_x,
 						},
 						link: {
 							...chartStyle.link, // Spread operator copies the config
